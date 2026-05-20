@@ -1,0 +1,71 @@
+[
+  {
+    "blocked": "NAC",
+    "reason": "반입차단 (의약품 분류)",
+    "alternatives": [
+      "글루타티온 (리포좀)",
+      "ALA",
+      "셀레늄 메티오닌"
+    ]
+  },
+  {
+    "blocked": "DHEA 저하 권고",
+    "reason": "DHEA 반입차단",
+    "alternatives": [
+      "아슈와간다 Shoden",
+      "홍경천",
+      "포스파티딜세린",
+      "판토텐산(B5)",
+      "비타민C"
+    ]
+  },
+  {
+    "blocked": "멜라토닌 권고",
+    "reason": "멜라토닌 반입차단",
+    "alternatives": [
+      "아슈와간다 Shoden",
+      "GABA",
+      "L-테아닌",
+      "Mg L-트레오네이트",
+      "타트체리"
+    ]
+  },
+  {
+    "blocked": "5-HTP 권고",
+    "reason": "5-HTP 반입차단",
+    "alternatives": [
+      "사프란 추출물",
+      "Mg 글리시네이트",
+      "P5P",
+      "아연 피콜리네이트"
+    ]
+  },
+  {
+    "blocked": "에스트로겐 우세 (③-H 영역)",
+    "reason": "③-H 마케팅 제약",
+    "alternatives": [
+      "DIM",
+      "I3C",
+      "Calcium-D-Glucarate"
+    ]
+  },
+  {
+    "blocked": "테스토스테론 저하 권고",
+    "reason": "성호르몬 표방 불가",
+    "alternatives": [
+      "아슈와간다 Shoden",
+      "아연 피콜리네이트",
+      "D3+K2",
+      "호로파/Tongkat/Tribulus (③-H)"
+    ]
+  },
+  {
+    "blocked": "SAM-e",
+    "reason": "반입차단 (의약품)",
+    "alternatives": [
+      "TMG",
+      "메틸B12",
+      "5-MTHF"
+    ]
+  }
+]

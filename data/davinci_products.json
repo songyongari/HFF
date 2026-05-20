@@ -1,0 +1,758 @@
+[
+  {
+    "product": "다빈치랩 엔자임 베네핏 (ENZYME BENEFITS) 30일분",
+    "ingredients": [
+      {
+        "name": "아밀라아제 (165,000 DU/g)",
+        "amount": 145.42,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "프로테아제 4.5 (1,000,000 HUT/g)",
+        "amount": 75,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "펙티나제 (9,000 ENDO PGU/g)",
+        "amount": 20,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "알파-갈락토시다아제 (30,000 GALU/g)",
+        "amount": 11.69,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "락타아제 (100,000 ALU/g)",
+        "amount": 10,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "셀룰라아제 (200,000 CU/g)",
+        "amount": 10,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "리파아제 (300,000 FIP/g)",
+        "amount": 10,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "프로테아제 3.0 (2,000 SAPU/g)",
+        "amount": 7.25,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "프로테아제 6.0 (500,000 HUT/g)",
+        "amount": 6,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "인버타제 (200,000 SU/g)",
+        "amount": 4,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "브로멜라인 (45,000 FCCPU/mg)",
+        "amount": 1.33,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "파파인 (50,000 FCCPU/mg)",
+        "amount": 0.89,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "헤미셀룰라아제 (500,000 HCU/g)",
+        "amount": 0.4,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 아드레날라이즈 (AdrenaLyze) 30일분",
+    "ingredients": [
+      {
+        "name": "비타민C",
+        "amount": 100,
+        "unit": "mg",
+        "kfda_std": 100,
+        "ratio": 1
+      },
+      {
+        "name": "비타민B1(티아민)",
+        "amount": 25,
+        "unit": "mg",
+        "kfda_std": 1.2,
+        "ratio": 20.833333333333336
+      },
+      {
+        "name": "비타민B2(리보플라빈)",
+        "amount": 25,
+        "unit": "mg",
+        "kfda_std": 1.4,
+        "ratio": 17.857142857142858
+      },
+      {
+        "name": "비타민B3(나이아신)",
+        "amount": 25,
+        "unit": "mg",
+        "kfda_std": 15,
+        "ratio": 1.6666666666666667
+      },
+      {
+        "name": "비타민B6(피리독신)",
+        "amount": 25,
+        "unit": "mg",
+        "kfda_std": 1.5,
+        "ratio": 16.666666666666668
+      },
+      {
+        "name": "비타민B9(엽산)",
+        "amount": 100,
+        "unit": "µg DFE",
+        "kfda_std": 400,
+        "ratio": 0.25
+      },
+      {
+        "name": "비타민B12(코발라민)",
+        "amount": 20,
+        "unit": "µg",
+        "kfda_std": 2.4,
+        "ratio": 8.333333333333334
+      },
+      {
+        "name": "비타민B7(비오틴)",
+        "amount": 75,
+        "unit": "µg",
+        "kfda_std": 30,
+        "ratio": 2.5
+      },
+      {
+        "name": "비타민B5(판토텐산)",
+        "amount": 50,
+        "unit": "mg",
+        "kfda_std": 5,
+        "ratio": 10
+      },
+      {
+        "name": "가시오갈피 뿌리 추출물",
+        "amount": 150,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "아쉬와간다 추출물 \n함량 섭취시 위타놀리드 3.75mg",
+        "amount": 150,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "포스파티딜세린",
+        "amount": 50,
+        "unit": "mg",
+        "kfda_std": 300,
+        "ratio": 0.16666666666666666
+      },
+      {
+        "name": "인삼 추출물",
+        "amount": 50,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "감초 뿌리 분말",
+        "amount": 10,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 미토 퓨얼 (Mito-Fuel) 30일분",
+    "ingredients": [
+      {
+        "name": "칼슘",
+        "amount": 30,
+        "unit": "mg",
+        "kfda_std": 700,
+        "ratio": 0.04285714285714286
+      },
+      {
+        "name": "D-Ribose®",
+        "amount": 5000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "L-카르니틴",
+        "amount": 500,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "사과산",
+        "amount": 300,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "N,N-디메틸글리신 HCl (DMG)",
+        "amount": 100,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "홍경천 추출물\n함량 섭취시 로사빈 2.25mg",
+        "amount": 75,
+        "unit": "mg",
+        "kfda_std": 200,
+        "ratio": 0.375
+      },
+      {
+        "name": "코엔자임Q10",
+        "amount": 30,
+        "unit": "mg",
+        "kfda_std": 90,
+        "ratio": 0.3333333333333333
+      },
+      {
+        "name": "브로멜라인",
+        "amount": 1000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "프로테아제",
+        "amount": 1000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "스테비아잎 추출물",
+        "amount": 45,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 메가프로바이오틱 ND50 (MEGA PROBIOTIC ND50) 30일분",
+    "ingredients": [
+      {
+        "name": "락토바실러스 아시도필루스",
+        "amount": "525억",
+        "unit": "CFU",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "락토바실러스 플란타룸",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "락토바실러스 카세이",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "프룩토올리고당",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "Lactobacillus salivarius",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "Lactobacillus rhamnosus",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "연쇄구균 써모필루스",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 브레브",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 비피덤",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 롱검",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 고용량 코큐텐 DMG (COQ10 DMG 300/300mg) 60일분",
+    "ingredients": [
+      {
+        "name": "비타민E",
+        "amount": 3.4,
+        "unit": "mg",
+        "kfda_std": 11,
+        "ratio": 0.3090909090909091
+      },
+      {
+        "name": "코엔자임Q10",
+        "amount": 300,
+        "unit": "mg",
+        "kfda_std": 90,
+        "ratio": 3.3333333333333335
+      },
+      {
+        "name": "N,N-디메틸글리신(DMG)",
+        "amount": 300,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 싱크업 설포라판 (Sync Up) 60일분",
+    "ingredients": [
+      {
+        "name": "BroccoPhane® 브로콜리( Brassica oleracea ) 새싹 분말\n설포라판으로 375µg",
+        "amount": 93.75,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 렙틴 베네핏 (ADIPO-LEPTIN BENEFITS) 30일분",
+    "ingredients": [
+      {
+        "name": "그린커피빈 추출물",
+        "amount": 300,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "갈조류( Laminaria japonica ) 전식물 추출물",
+        "amount": 200,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "WellTrim® iG(IGOB131®) 아프리카 망고( Irvingia gabonensis )\n 종자 추출물",
+        "amount": 150,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "GreenSelect® 녹차\n(카멜리아 시넨시스 잎 추출물/\n 포스파티딜콜린 복합체)",
+        "amount": 150,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 메가프로바이오틱 ND120 (MEGA PROBIOTIC ND120) 40일분",
+    "ingredients": [
+      {
+        "name": "락토바실러스 아시도필루스",
+        "amount": "150억",
+        "unit": "CFU",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 락티스",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "락토바실러스 카세이",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "연쇄구균 써모필루스",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 브레브",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "락토바실러스 람노서스",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 롱검",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "비피도박테리움 비피덤",
+        "amount": null,
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 리포조말 비타민C (LIPOSOMAL C) 60일분",
+    "ingredients": [
+      {
+        "name": "비타민C",
+        "amount": 1250,
+        "unit": "mg",
+        "kfda_std": 100,
+        "ratio": 12.5
+      },
+      {
+        "name": "스테비아 잎 추출물",
+        "amount": 10,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 글루타치온 (Glutathione) 30일분",
+    "ingredients": [
+      {
+        "name": "L-글루타치온",
+        "amount": 200,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 브레인 베네핏 (BRAIN BENEFITS) 40일분",
+    "ingredients": [
+      {
+        "name": "EPA 537mg + DHA 645mg\n(생선기름 & 참치기름 블렌드)",
+        "amount": 1182,
+        "unit": "mg",
+        "kfda_std": 330,
+        "ratio": 3.581818181818182
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 네츄럴 비타민E 플러스 (NATURAL MIXED TOCOPHEROL E-400) 60일분",
+    "ingredients": [
+      {
+        "name": "비타민E",
+        "amount": 268,
+        "unit": "mg",
+        "kfda_std": 11,
+        "ratio": 24.363636363636363
+      },
+      {
+        "name": "혼합 토코페롤\n함량 섭취시 d-감마 55mg, d-델타 및 d-베타 11.9mg",
+        "amount": 67,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 비타민D3 10,000 IU 30일분",
+    "ingredients": [
+      {
+        "name": "비타민D",
+        "amount": 250,
+        "unit": "µg",
+        "kfda_std": 10,
+        "ratio": 25
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 L-글루타민 파우더 (L-GLUTAMINE POWDER) 30일분",
+    "ingredients": [
+      {
+        "name": "L-글루타민",
+        "amount": 5000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 리포조말 엘테아닌 (LIPOSOMAL L-THEANINE) 50일분",
+    "ingredients": [
+      {
+        "name": "L-테아닌",
+        "amount": 102,
+        "unit": "mg",
+        "kfda_std": 200,
+        "ratio": 0.51
+      },
+      {
+        "name": "스테비아 잎 추출물",
+        "amount": 0.6,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 맥시-HGH (Maxi-HGH) 30일분",
+    "ingredients": [
+      {
+        "name": "L-글루타민",
+        "amount": 6000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "L-아르기닌",
+        "amount": 1000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "L-오르니틴",
+        "amount": 1000,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "L-리신",
+        "amount": 1250,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "글리신",
+        "amount": 1000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 자몽씨 추출물 (GRAPEFRUIT SEED EXTRACT) 30일분",
+    "ingredients": [
+      {
+        "name": "자몽(Citrus paradisi) 종자 추출물",
+        "amount": 400,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 네이처 콜라겐 (NATURE'S COLLAGEN) 45일분",
+    "ingredients": [
+      {
+        "name": "BioCell Collagen® (가수분해된 흉골\n 연골추출물)",
+        "amount": 1000,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "메틸설포닐메탄",
+        "amount": 800,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "글루코사민 HCl",
+        "amount": 600,
+        "unit": "µg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 이뮤노 베네핏 (IMMUNO BENEFITS) 30일분",
+    "ingredients": [
+      {
+        "name": "초유\n함량 섭취시 면역글로불린(IgG) 200mg",
+        "amount": 500,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "모노라우린",
+        "amount": 300,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "Wellmune®",
+        "amount": 250,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "베이커스 이스트 베타 1,3/1,6 글루칸",
+        "amount": "-",
+        "unit": "",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 어큐트 마이타케 DMG 리퀴드 (Maitake-DMG Liquid) 30일분",
+    "ingredients": [
+      {
+        "name": "마이다케 PD-Fraction® (잎새버섯) 자실체 추출물\n함량 섭취시 D-Fraction® 9mg",
+        "amount": 30,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "N,N-디메틸글리신(DMG)",
+        "amount": 450,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  },
+  {
+    "product": "다빈치랩 커큐민 C3 복합체 (Curcumin C3 Complex) 60정 / 1개월분",
+    "ingredients": [
+      {
+        "name": "커큐민 C3 컴플렉스®\n함량 섭취시 쿠르쿠미노이드 475mg",
+        "amount": 500,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      },
+      {
+        "name": "Bioperine® ( Piper nigrum ) 열매 추출물",
+        "amount": 5,
+        "unit": "mg",
+        "kfda_std": null,
+        "ratio": null
+      }
+    ],
+    "usage": ""
+  }
+]
