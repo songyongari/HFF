@@ -353,12 +353,59 @@ def _split_bullets(text: str) -> list[str]:
 
 
 _RECOGNITION_NO = _re.compile(r'제\d{4}-\d+호')
+_KO_MARKER = _re.compile(r'\(국문\)\s*')
+_EN_MARKER = _re.compile(r'\(영문\)\s*')
+
+
+def _split_section_body(body: str) -> tuple[list[str], str | None]:
+    """섹션 본문을 (한글 불릿 리스트, 영문 한 줄 또는 None) 으로 분리.
+
+    우선순위:
+      1. (국문) / (영문) 명시적 마커 — 한국어는 `, ` 로 불릿 분리, 영문은 한 줄
+      2. ①②③ 원번호 분리
+      3. (가)(나)(다) 한글번호 분리
+      4. 줄바꿈 분리
+      5. 그 외 — 단일 불릿 (콤마는 합성어 내부일 수 있어 분리 안 함)
+    """
+    body = body.strip()
+    if not body:
+        return [], None
+
+    ko_m = _KO_MARKER.search(body)
+    en_m = _EN_MARKER.search(body)
+
+    if ko_m or en_m:
+        if ko_m and en_m:
+            ko_text = body[ko_m.end():en_m.start()]
+            en_text = body[en_m.end():].strip()
+        elif ko_m:
+            ko_text, en_text = body[ko_m.end():], None
+        else:
+            ko_text, en_text = "", body[en_m.end():].strip()
+
+        ko_text = ko_text.strip().strip(",").strip()
+        ko_bullets = [s.strip() for s in ko_text.split(", ") if s.strip()] if ko_text else []
+        return ko_bullets, en_text
+
+    if _re.search(rf'[{_CIRCLED}]', body):
+        parts = [p.strip().rstrip(":·,.") for p in _re.split(rf'[{_CIRCLED}]', body)]
+        return [p for p in parts if p], None
+
+    if _re.search(rf'\([{_KR_LETTER}]\)', body):
+        parts = [p.strip().rstrip(":·,.") for p in _re.split(rf'\([{_KR_LETTER}]\)', body)]
+        return [p for p in parts if p], None
+
+    if "\n" in body:
+        return [line.strip() for line in body.split("\n") if line.strip()], None
+
+    return [body], None
 
 
 def parse_functionality(text: str) -> list[dict]:
-    """MAIN_FNCTN 원문을 {ingredient, recognition_no, benefits[...]} 구조 리스트로.
+    """MAIN_FNCTN 원문을 {ingredient, recognition_no, benefits[...], english} 구조 리스트로.
 
     recognition_no: '제YYYY-NN호' 매칭 시 개별인정형, None 이면 고시형.
+    english: (영문) 라벨이 있을 때 영문 효능 한 줄 텍스트.
     """
     if not text or not text.strip():
         return []
@@ -374,8 +421,9 @@ def parse_functionality(text: str) -> list[dict]:
             m = _RECOGNITION_NO.search(ing)
             if m:
                 rno = m.group(0)
+        bullets, english = _split_section_body(body)
         return {"ingredient": ing, "recognition_no": rno,
-                "benefits": _split_bullets(body)}
+                "benefits": bullets, "english": english}
 
     if not matches:
         return [_make(None, text)]
@@ -416,6 +464,8 @@ def render_functionality(text: str, *, st_mod=None) -> None:
                             unsafe_allow_html=True)
         for b in sec["benefits"]:
             st_mod.markdown(f"- {b}")
+        if sec.get("english"):
+            st_mod.caption(f"🇬🇧 {sec['english']}")
         st_mod.write("")
 
 
