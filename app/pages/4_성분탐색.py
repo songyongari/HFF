@@ -17,6 +17,7 @@ from lib import (
     BUCKET_LABEL,
     check_blocked,
     classify_bucket,
+    load_htfs_cat_all,
     load_htfs_nutri_all,
     load_ingredient_master,
     load_marketing_rules,
@@ -40,19 +41,67 @@ page(
 )
 
 # ============ 검색 ============
+# 카탈로그·다른 페이지에서 넘어온 prefill 처리 (1회 소비)
+_prefill = st.session_state.pop("_ing_prefill", None)
+if _prefill:
+    st.session_state["ing_query"] = _prefill
+
 col_q, col_go = st.columns([5, 1])
 with col_q:
     query = st.text_input(
         "성분명",
         placeholder="예) 마그네슘 · NMN · 비타민C · 콜라겐 · 프로바이오틱스 · 커큐민 · Ashwagandha",
         label_visibility="collapsed",
+        key="ing_query",
     )
 with col_go:
     search_c002 = st.checkbox("C002 조회", value=True,
                                help="일반식품 품목제조보고 API를 실시간 호출 (3~10초 소요)")
 
 if not query:
-    st.info("위에 성분명을 입력하세요.")
+    st.info("위에 성분명을 입력하거나, 아래 카탈로그에서 선택하세요.")
+
+    # ============ 기능성 원료 카탈로그 (I0760) ============
+    section("📚 기능성 원료 카탈로그", caption="식약처 I0760 분류 · 행 클릭 시 자동 검색")
+    catalog = load_htfs_cat_all()
+    nutri_rows = [r for r in catalog if r.get("MLSFC_NM") == "영양소"]
+    func_rows  = [r for r in catalog if r.get("MLSFC_NM") == "기능성원료"]
+    indiv_rows = [r for r in catalog if r.get("MLSFC_NM") == "개별인정형 건강기능식품"]
+
+    cat_tabs = st.tabs([
+        f"🥗 고시형 · 영양소 ({len(nutri_rows)})",
+        f"🌿 고시형 · 기능성원료 ({len(func_rows)})",
+        f"🟢 개별인정형 ({len(indiv_rows)})",
+    ])
+
+    def _render_catalog(rows, key_prefix):
+        if not rows:
+            st.caption("—"); return
+        df = pd.DataFrame([
+            {
+                "원료명": r.get("HELT_ITM_GRP_NM", ""),
+                "세부분류": r.get("SCLAS_NM", ""),
+                "코드": r.get("HELT_ITM_GRP_CD", ""),
+            }
+            for r in rows
+        ]).sort_values("원료명").reset_index(drop=True)
+        flt = st.text_input("이 목록에서 필터", key=f"{key_prefix}_filter",
+                            placeholder="예) 비타민 · 오메가 · 추출물")
+        if flt:
+            df = df[df["원료명"].str.contains(flt, case=False, na=False)].reset_index(drop=True)
+        event = st.dataframe(
+            df, width="stretch", hide_index=True, height=420,
+            on_select="rerun", selection_mode="single-row",
+            key=f"{key_prefix}_df",
+        )
+        if event.selection and event.selection.rows:
+            picked = df.iloc[event.selection.rows[0]]["원료명"]
+            st.session_state["_ing_prefill"] = picked
+            st.rerun()
+
+    with cat_tabs[0]: _render_catalog(nutri_rows, "cat_nutri")
+    with cat_tabs[1]: _render_catalog(func_rows, "cat_func")
+    with cat_tabs[2]: _render_catalog(indiv_rows, "cat_indiv")
     st.stop()
 
 # ============ 최우선: 5-bucket 종합 판정 ============
