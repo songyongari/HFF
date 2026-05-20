@@ -28,6 +28,33 @@ from theme import info_pill, page
 _TERM_PUNCT = re.compile(r'(필요|있음|줌|함|향상)\s*[,.·/]\s*')
 _MIXED_SCLAS = {"혼합기능성원료", "복합영양소제품", "영양보충용제품"}
 
+# 별칭 판정용 — substring 매칭 시 허용되는 prefix/suffix 패턴
+_ALIAS_BEFORE = re.compile(r'^[^/]+/$|^/$')
+_ALIAS_AFTER = re.compile(r'^\(.+\)$|^\s*제품$|^/.+$')
+
+
+def is_alias_pair(a: str, b: str) -> bool:
+    """두 표기가 같은 원료의 변형(공백·괄호·접미사·혼합) 인지 판정.
+
+    엄격한 substring 매칭 — 추가 부분이 알려진 prefix(혼합 '비타민/')
+    또는 suffix('(원료성)', '제품', '/...')일 때만 True.
+    'B1' vs 'B12' 같이 단순 substring 인데 다른 원료인 경우 False.
+    """
+    if not a or not b or a == b:
+        return False
+    an, bn = norm(a), norm(b)
+    if an == bn:
+        return True
+    long_n, short_n = (an, bn) if len(an) > len(bn) else (bn, an)
+    if short_n not in long_n:
+        return False
+    idx = long_n.find(short_n)
+    before = long_n[:idx]
+    after = long_n[idx + len(short_n):]
+    before_ok = (not before) or bool(_ALIAS_BEFORE.fullmatch(before))
+    after_ok = (not after) or bool(_ALIAS_AFTER.fullmatch(after))
+    return before_ok and after_ok
+
 
 def split_combined_benefits(text: str) -> list[str]:
     """'A에 필요, B에 필요' 형태를 ['A에 필요', 'B에 필요'] 로 분리."""
@@ -84,15 +111,20 @@ def find_aliases(cat_name: str, header_freq: Counter,
             result.append((alias, header_freq.get(alias, 0)))
             seen.add(alias)
 
-    # 2. 자동: norm 부분 매칭 (양방향) — 최소 5건 이상만 (노이즈 제거)
+    # 2. '(또는 X)' 패턴 분해된 동의어도 별칭 후보
+    expanded = expand_catalog_name(cat_name)
+    for ex in expanded[1:]:  # 첫 원본 제외
+        if ex in header_freq and ex not in seen and header_freq[ex] >= 5:
+            result.append((ex, header_freq[ex]))
+            seen.add(ex)
+
+    # 3. 자동: is_alias_pair 정밀 매칭 (B1/B12 같은 substring 오매칭 차단)
     auto: list[tuple[str, int]] = []
     for h, n in header_freq.items():
         if h in seen or n < 5:
             continue
-        hn = norm(h)
-        if not hn or len(hn) < 2:
-            continue
-        if cn in hn or hn in cn:
+        # cat_name 또는 expanded 동의어와 매칭되면 별칭
+        if any(is_alias_pair(ex, h) for ex in expanded):
             auto.append((h, n))
     auto.sort(key=lambda x: -x[1])
     for h, n in auto:
@@ -103,13 +135,40 @@ def find_aliases(cat_name: str, header_freq: Counter,
     return result[:4]
 
 
-def official_name(cat_name: str, aliases: list[tuple[str, int]]) -> str:
-    """공식 명칭 = 시장 빈도 가장 높은 표기 (없으면 카탈로그명)."""
-    if aliases:
-        top = max(aliases, key=lambda x: x[1])
-        if top[1] >= 50:
-            return top[0]
-    return cat_name
+def expand_catalog_name(cat_name: str) -> list[str]:
+    """카탈로그명의 가능한 표기 후보 추출.
+
+    '셀레늄(또는 셀렌)' → ['셀레늄(또는 셀렌)', '셀레늄', '셀렌'] 처럼
+    '또는'/'또는'/'or' 로 묶인 동의어 추출.
+    """
+    result = [cat_name]
+    m = re.match(r'^(.+?)\((?:또는|or)\s+(.+?)\)\s*$', cat_name)
+    if m:
+        result.append(m.group(1).strip())
+        result.append(m.group(2).strip())
+    return result
+
+
+def official_name(cat_name: str, aliases: list[tuple[str, int]],
+                  header_freq: Counter) -> str:
+    """공식 명칭 = 카탈로그명 또는 시장 빈도 압도적인 별칭.
+
+    카탈로그명이 시장에 충분히(별칭 1위의 절반 이상) 등록되어 있으면
+    카탈로그명이 공식. 그렇지 않으면 별칭 1위가 공식.
+    예: '비타민D'(시장 3996) > '비타민 D'(890) → '비타민D' 공식.
+         '오메가-3지방산함유유지'(시장 0) < 'EPA 및 DHA 함유 유지'(940)
+         → 'EPA 및 DHA 함유 유지' 공식.
+    """
+    if not aliases:
+        return cat_name
+    cat_freq = header_freq.get(cat_name, 0)
+    top_alias, top_freq = max(aliases, key=lambda x: x[1])
+    if top_freq < 10:
+        return cat_name
+    # 카탈로그명도 별칭 1위 빈도의 절반 이상이면 카탈로그명 유지
+    if cat_freq * 2 >= top_freq:
+        return cat_name
+    return top_alias
 
 
 def classify(row: dict) -> tuple[str, str]:
@@ -132,7 +191,9 @@ def render_detail(name: str, source_row: dict,
     st.divider()
     label, tone = classify(source_row)
     badge = info_pill(label, tone=tone)
-    st.markdown(f"### 📋 {name}  {badge}", unsafe_allow_html=True)
+    # 공식 명칭(시장 등록 표기) 우선, 카탈로그명은 별칭 처리
+    official = official_name(name, aliases, header_freq)
+    st.markdown(f"### 📋 {official}  {badge}", unsafe_allow_html=True)
 
     # 메타
     sclas = source_row.get("SCLAS_NM", "")
@@ -142,11 +203,18 @@ def render_detail(name: str, source_row: dict,
     c2.markdown(f"**세부분류**: {sclas or '—'}")
     c3.markdown(f"**식약처 코드**: `{grp_cd or '—'}`")
 
-    # 별칭
-    if aliases:
-        st.markdown("**별칭(시장 표기)**: " +
+    # 별칭 — 공식 명칭이 아닌 표기들 (카탈로그명도 별칭으로 포함)
+    other_names: list[tuple[str, int]] = []
+    if official != name:
+        other_names.append((name, header_freq.get(name, 0)))
+    for a, n in aliases:
+        if a != official and a != name:
+            other_names.append((a, n))
+    if other_names:
+        st.markdown("**별칭**: " +
                     "  ·  ".join(f"`{a}` <span style='color:#888;'>({n})</span>"
-                                   for a, n in aliases),
+                                   if n > 0 else f"`{a}`"
+                                   for a, n in other_names),
                     unsafe_allow_html=True)
 
     # 효능 집계 (카탈로그명 + 별칭 모두로 검색)
@@ -232,7 +300,7 @@ def render_detail(name: str, source_row: dict,
 
     if st.button("🧪 성분 탐색에서 5-bucket 판정 보기",
                  key=f"goto_ing_{grp_cd or name}"):
-        st.session_state["_ing_prefill"] = official_name(name, aliases)
+        st.session_state["_ing_prefill"] = official_name(name, aliases, header_freq)
         st.switch_page("pages/4_성분탐색.py")
 
 
@@ -264,7 +332,7 @@ def enrich(row: dict) -> dict:
         "row": row,
         "name": name,
         "aliases": aliases,
-        "official": official_name(name, aliases),
+        "official": official_name(name, aliases, header_freq),
     }
 
 enriched_all = [enrich(r) for r in catalog]
