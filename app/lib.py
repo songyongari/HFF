@@ -352,8 +352,14 @@ def _split_bullets(text: str) -> list[str]:
     return [text]
 
 
+_RECOGNITION_NO = _re.compile(r'제\d{4}-\d+호')
+
+
 def parse_functionality(text: str) -> list[dict]:
-    """MAIN_FNCTN 원문을 {ingredient, benefits[...]} 구조 리스트로."""
+    """MAIN_FNCTN 원문을 {ingredient, recognition_no, benefits[...]} 구조 리스트로.
+
+    recognition_no: '제YYYY-NN호' 매칭 시 개별인정형, None 이면 고시형.
+    """
     if not text or not text.strip():
         return []
     text = text.strip()
@@ -362,30 +368,39 @@ def parse_functionality(text: str) -> list[dict]:
     matches = list(pattern.finditer(text))
     sections: list[dict] = []
 
+    def _make(ing: str | None, body: str) -> dict:
+        rno = None
+        if ing:
+            m = _RECOGNITION_NO.search(ing)
+            if m:
+                rno = m.group(0)
+        return {"ingredient": ing, "recognition_no": rno,
+                "benefits": _split_bullets(body)}
+
     if not matches:
-        sections.append({"ingredient": None, "benefits": _split_bullets(text)})
-        return sections
+        return [_make(None, text)]
 
     # 첫 [ 앞에 prefix 텍스트가 있으면 no-ingredient 섹션으로
     first_start = matches[0].start()
     if first_start > 0:
         pre = text[:first_start].strip()
         if pre:
-            sections.append({"ingredient": None, "benefits": _split_bullets(pre)})
+            sections.append(_make(None, pre))
 
     for i, m in enumerate(matches):
         ing = m.group(1).strip()
         body_start = m.end()
         body_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         body = text[body_start:body_end].strip()
-        sections.append({"ingredient": ing, "benefits": _split_bullets(body)})
+        sections.append(_make(ing, body))
 
     return sections
 
 
 def render_functionality(text: str, *, st_mod=None) -> None:
-    """Streamlit 렌더러 — 정리된 기능성 뷰."""
+    """Streamlit 렌더러 — 정리된 기능성 뷰. 개별인정/고시형 뱃지 포함."""
     import streamlit as _st
+    from theme import info_pill
     st_mod = st_mod or _st
     sections = parse_functionality(text)
     if not sections:
@@ -393,7 +408,12 @@ def render_functionality(text: str, *, st_mod=None) -> None:
         return
     for sec in sections:
         if sec["ingredient"]:
-            st_mod.markdown(f"**🔹 {sec['ingredient']}**")
+            if sec["recognition_no"]:
+                badge = info_pill(f"개별인정 · {sec['recognition_no']}", tone="success")
+            else:
+                badge = info_pill("고시형", tone="info")
+            st_mod.markdown(f"**🔹 {sec['ingredient']}**  {badge}",
+                            unsafe_allow_html=True)
         for b in sec["benefits"]:
             st_mod.markdown(f"- {b}")
         st_mod.write("")
