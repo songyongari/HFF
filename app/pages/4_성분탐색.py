@@ -29,7 +29,7 @@ from lib import (
 from renderers import bucket_badge, render_bucket_block
 from theme import section
 
-from fetchers.mfc_rpt import search_by_raw_material
+from fetchers.mfc_rpt_live import search_by_raw_material
 
 from theme import page
 

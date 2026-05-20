@@ -32,9 +32,9 @@ from fetchers.htfs_nutri import FIELD_LABELS as NUTRI_LABELS
 from fetchers.foodhist import fetch_by_product_name as foodhist_by_name
 from fetchers.htfs_mfc_lookup import fetch_by_report_no as htfs_mfc_by_rpt
 from fetchers.htfs_mfc import parse_raw_materials as htfs_mfc_parse
-from fetchers.mfc_rpt import (
+from fetchers.mfc_rpt import parse_raw_materials
+from fetchers.mfc_rpt_live import (
     fetch_by_report_no as mfc_by_report_no,
-    parse_raw_materials,
     search_by_company as mfc_by_company,
     search_by_product_name as mfc_by_name,
 )
@@ -201,7 +201,7 @@ with main_tabs[1]:
                     one = mfc_by_report_no(q.strip())
                     rows = [one] if one else []
                 else:
-                    from fetchers.mfc_rpt import search_by_raw_material
+                    from fetchers.mfc_rpt_live import search_by_raw_material
                     rows = search_by_raw_material(q, limit=limit)
             except Exception as e:
                 st.error(f"API 호출 실패: {e}")
