@@ -29,20 +29,31 @@ from fetchers._fskr_base import call_fskr, extract_rows, total_count
 
 _CACHE_FILE = DATA_DIR / "htfs_mfc_all.json"
 
+# 배포 사이즈 최소화 — 앱이 실제 사용하는 필드만 보존
+_SLIM_FIELDS = {"PRDLST_REPORT_NO", "PRDLST_NM", "BSSH_NM",
+                "RAWMTRL_NM", "PRDT_SHAP_CD_NM", "DISPOS"}
+
+
+def _slim(row: dict) -> dict:
+    return {k: v for k, v in row.items() if k in _SLIM_FIELDS}
+
 
 def fetch_all(*, page_size: int = 1000, sleep: float = 0.3) -> list[dict]:
-    """C003 전체 44K+건 수신. 식약처 API max 1000/call → 약 45회 호출."""
+    """C003 전체 44K+건 수신. 식약처 API max 1000/call → 약 45회 호출.
+
+    배포용으로 필드 슬림화 — 풀 필드 원할 시 _SLIM_FIELDS 비우면 됨.
+    """
     first = call_fskr(SID_HTFS_MFC, start=1, end=page_size)
     total = total_count(first, SID_HTFS_MFC)
     if total == 0:
         return []
-    all_rows = extract_rows(first, SID_HTFS_MFC)
+    all_rows = [_slim(r) for r in extract_rows(first, SID_HTFS_MFC)]
     print(f"  C003 total={total:,}, 1-{page_size}: {len(all_rows)} rows")
     cursor = page_size + 1
     while cursor <= total:
         end = min(cursor + page_size - 1, total)
         payload = call_fskr(SID_HTFS_MFC, start=cursor, end=end)
-        rows = extract_rows(payload, SID_HTFS_MFC)
+        rows = [_slim(r) for r in extract_rows(payload, SID_HTFS_MFC)]
         all_rows.extend(rows)
         print(f"  C003 {cursor:,}-{end:,}: {len(rows)} rows (누적 {len(all_rows):,})")
         cursor = end + 1
