@@ -353,8 +353,40 @@ def _split_bullets(text: str) -> list[str]:
 
 
 _RECOGNITION_NO = _re.compile(r'제\d{4}-\d+호')
-_KO_MARKER = _re.compile(r'\(국문\)\s*')
-_EN_MARKER = _re.compile(r'\(영문\)\s*')
+# (국문) 또는 [국문] 둘 다 지원 — 동일하게 영문/국문 모두
+_KO_MARKER = _re.compile(r'[\(\[]\s*국문\s*[\)\]]\s*')
+_EN_MARKER = _re.compile(r'[\(\[]\s*영문\s*[\)\]]\s*')
+# 영문 꼬리 패턴 — 슬래시·콤마(/ , May help...), 또는 끝 영문 괄호 ((May help...))
+_TRAILING_ENGLISH = _re.compile(
+    r'\s*[/／,，]\s*[A-Za-z][^/／,，]*$|\s*\(\s*[A-Z][^)]*\)\s*$'
+)
+# 라벨만/빈 줄 또는 영문 줄로 추정되는 패턴
+_LABEL_ONLY = _re.compile(r'^[\s:：.,\-]*$|^\s*\(?\s*(국문|영문)\s*\)?\s*$')
+# 영문 줄 — 한국어 한 글자도 없고 영문이 주된 줄
+_HANGUL = _re.compile(r'[가-힣]')
+
+
+def _is_english_line(b: str) -> bool:
+    """줄이 영문 번역줄인지 — 마커 제거 후 한글 0자 + 영문 알파벳 있음."""
+    s = _re.sub(rf'^[\s{_CIRCLED}\d\.\(\)가나다라마바사아자차카타파하]+', "", b).strip()
+    if not s:
+        return False
+    return not _HANGUL.search(b) and bool(_re.search(r'[A-Za-z]', b))
+
+
+def _cleanup_benefit(b: str) -> str:
+    """효능 불릿 정화.
+
+    - 불릿 내부의 줄바꿈 영문 줄 제거 (한국어 줄만 유지)
+    - 슬래시·콤마 뒤 영문 또는 끝 영문 괄호 제거
+    - 양끝 공백/구두점 정리
+    """
+    b = b.strip()
+    if "\n" in b:
+        lines = [ln for ln in b.split("\n") if ln.strip() and not _is_english_line(ln)]
+        b = " ".join(lines)
+    b = _TRAILING_ENGLISH.sub("", b).strip()
+    return b.strip(" :：,.")
 
 
 _NUMBERED = _re.compile(rf'\((?:\d+|[{_KR_LETTER}])\)')
@@ -426,35 +458,67 @@ def parse_functionality(text: str) -> list[dict]:
     matches = list(pattern.finditer(text))
     sections: list[dict] = []
 
-    def _make(ing: str | None, body: str) -> dict:
+    def _make(ing: str | None, body: str) -> dict | None:
         rno = None
+        # 헤더 sanity — 너무 길거나 줄바꿈 있으면 데이터 망가짐, 헤더 폐기
+        if ing and (len(ing) > 60 or "\n" in ing):
+            body = (ing + "\n" + body) if body else ing
+            ing = None
+        # 헤더가 영문 위주(예: [May help...]) 면 데이터 망가짐, 폐기
+        if ing and ing.strip():
+            eng = sum(1 for c in ing if c.isascii() and c.isalpha())
+            if eng / max(len(ing.strip()), 1) > 0.5:
+                body = (ing + "\n" + body) if body else ing
+                ing = None
         if ing:
-            m = _RECOGNITION_NO.search(ing)
-            if m:
-                rno = m.group(0)
-                # 원료명에서 "(제YYYY-NN호)" 제거 — 뱃지에만 표시
-                ing = _re.sub(r'\s*\(\s*제\d{4}-\d+호\s*\)', '', ing).strip()
+            # leading bullet/asterisk 제거
+            ing = ing.strip().lstrip("*-•").strip()
+            # 헤더에 (영문) 표시 — 같은 원료의 영문 사본이므로 섹션 자체 폐기
+            if _EN_MARKER.search(ing):
+                return None
+            # (국문) 라벨 제거
+            ing = _KO_MARKER.sub("", ing).strip()
+            if not ing:
+                ing = None
+            else:
+                m = _RECOGNITION_NO.search(ing)
+                if m:
+                    rno = m.group(0)
+                    # 원료명에서 "(제YYYY-NN호)" 제거 — 뱃지에만 표시
+                    ing = _re.sub(r'\s*\(\s*제\d{4}-\d+호\s*\)', '', ing).strip()
         ko_bullets, en_bullets = _split_section_body(body)
+        # 후처리: 슬래시·괄호 영문 꼬리 제거 + 빈/라벨/영문 줄 필터
+        ko_bullets = [_cleanup_benefit(b) for b in ko_bullets]
+        ko_bullets = [
+            b for b in ko_bullets
+            if b and not _LABEL_ONLY.match(b) and not _is_english_line(b)
+        ]
         return {"ingredient": ing, "recognition_no": rno,
                 "benefits": ko_bullets, "english": en_bullets}
 
     if not matches:
         # [원료명] 대괄호 없음 → 빈 줄 기준 섹션, 각 섹션 첫 줄을 원료명 후보로
-        return _parse_blank_line_blocks(text, _make) or [_make(None, text)]
+        sections = _parse_blank_line_blocks(text, _make)
+        if not sections:
+            fallback = _make(None, text)
+            sections = [fallback] if fallback else []
+        return [s for s in sections if s is not None]
 
     # 첫 [ 앞에 prefix 텍스트가 있으면 no-ingredient 섹션으로
     first_start = matches[0].start()
     if first_start > 0:
         pre = text[:first_start].strip()
         if pre:
-            sections.append(_make(None, pre))
+            s = _make(None, pre)
+            if s: sections.append(s)
 
     for i, m in enumerate(matches):
         ing = m.group(1).strip()
         body_start = m.end()
         body_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         body = text[body_start:body_end].strip()
-        sections.append(_make(ing, body))
+        s = _make(ing, body)
+        if s: sections.append(s)
 
     return sections
 
@@ -467,8 +531,11 @@ _EFFICACY = _re.compile(r'있음|필요|도움|개선|감소|유지|보호|증�
 
 
 def _is_ingredient_like(s: str) -> bool:
-    """원료명 후보 판정 — 짧고, 마커·효능키워드 없는 단일 라인."""
-    s = s.strip()
+    """원료명 후보 판정 — 짧고, 마커·효능키워드 없는 단일 라인.
+
+    leading '* ' 또는 '- ' bullet 마커는 제거 후 검사.
+    """
+    s = s.strip().lstrip("*-•").strip()
     if not s or "\n" in s or len(s) > 50:
         return False
     if _LEADING_MARKER.match(s):
@@ -499,7 +566,8 @@ def _parse_blank_line_blocks(text: str, _make) -> list[dict]:
         block = blocks[i]
         # A) 단일 줄 원료명 + 다음 블록 본문 페어
         if _is_ingredient_like(block) and i + 1 < len(blocks):
-            sections.append(_make(block, blocks[i + 1]))
+            s = _make(block, blocks[i + 1])
+            if s: sections.append(s)
             i += 2
             continue
         # B) 블록 내부에서 첫 줄을 헤더로 승격 시도
@@ -507,9 +575,10 @@ def _parse_blank_line_blocks(text: str, _make) -> list[dict]:
         first = lines[0].strip()
         rest = "\n".join(lines[1:]).strip()
         if rest and _is_ingredient_like(first):
-            sections.append(_make(first, rest))
+            s = _make(first, rest)
         else:
-            sections.append(_make(None, block))
+            s = _make(None, block)
+        if s: sections.append(s)
         i += 1
     return sections
 
