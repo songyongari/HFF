@@ -12,6 +12,7 @@ from lib import (
     load_biocom_xlsx_ingredients,
     load_davinci_products,
     load_ingredient_master,
+    lookup_rwmatr,
     norm,
     render_functionality,
     search_htfs_nutri,
