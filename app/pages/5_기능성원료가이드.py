@@ -88,8 +88,17 @@ def render_detail(name: str, source_row: dict) -> None:
     with st.spinner("관련 건기식 조회..."):
         products = search_htfs_by_ingredient(name, limit=200)
 
-    # ===== 1. 표준 효능 =====
-    st.markdown("##### 💪 표준 효능 (시장 건기식의 기능성 문구에서 집계)")
+    # ===== 1. 표준 기능성 =====
+    is_indiv = (mlsfc == "개별인정형 건강기능식품")
+    header = "🟢 인정 효능 문구 (KFDA 개별인정)" if is_indiv \
+             else "💪 식약처 공전 표준 기능성"
+    sub = ("회사가 KFDA 개별인정 신청 시 등재한 효능 문구."
+           if is_indiv
+           else "식약처 「건강기능식품 공전」 에 등재된 표준 기능성 문구. "
+                "모든 시장 제품이 동일하게 표기 의무.")
+    st.markdown(f"##### {header}")
+    st.caption(sub)
+
     benefit_counter: Counter[str] = Counter()
     nq = norm(name)
     for p in products:
@@ -98,17 +107,19 @@ def render_detail(name: str, source_row: dict) -> None:
             ing = sec.get("ingredient") or ""
             if nq and nq in norm(ing):
                 for b in sec.get("benefits", []):
-                    # 콤마·마침표·슬래시로 결합된 다중 효능 분리해서 집계
                     for part in split_combined_benefits(b):
                         benefit_counter[part] += 1
 
-    if benefit_counter:
-        for benefit, n in benefit_counter.most_common(5):
-            st.markdown(f"- {benefit}  <span style='color:#888; font-size:0.85em;'>"
-                        f"({n}개 제품에서 표기)</span>",
-                        unsafe_allow_html=True)
+    # 마이너 변형(5회 미만) 제외, 상위 3개만
+    standard = [b for b, n in benefit_counter.most_common() if n >= 5][:3]
+    if standard:
+        for benefit in standard:
+            st.markdown(f"- {benefit}")
+    elif benefit_counter:
+        # 빈도 낮음 — 그래도 상위 1개 보여줌
+        st.markdown(f"- {benefit_counter.most_common(1)[0][0]}")
     else:
-        st.caption("관련 효능 문구 자동 추출 실패 — 아래 사용 제품의 기능성 문구 참고.")
+        st.caption("자동 추출 실패 — 아래 사용 제품의 기능성 문구 직접 확인.")
 
     # ===== 2. 원재료 표준사전 매칭 (정확 매칭만 — 부분 매칭으로 무관한 식물 끌어오는 것 방지) =====
     rw_raw = search_rwmatr(name, limit=10)
