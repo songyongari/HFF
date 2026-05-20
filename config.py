@@ -18,7 +18,12 @@ if _env_path.exists():
 
 # === API 키 ===
 def _get_key(name: str) -> str:
-    """환경변수 → Streamlit secrets 순으로 조회."""
+    """환경변수 → Streamlit secrets 순으로 조회. 둘 다 없으면 빈 문자열.
+
+    배포 환경(Streamlit Cloud)에서 secrets 누락 시 import 단계에서 죽지 않도록
+    빈 문자열 fallback. 앱 대부분은 사전 수집된 data/*.json 만 사용하므로
+    키 없이도 동작. 라이브 API 호출(C002, FoodHist on-demand) 만 실패함.
+    """
     val = os.environ.get(name)
     if val:
         return val
@@ -26,7 +31,7 @@ def _get_key(name: str) -> str:
         import streamlit as st
         return st.secrets[name]
     except Exception:
-        raise KeyError(f"{name} not found in env or st.secrets")
+        return ""
 
 KEY_DATAGO = _get_key("KEY_DATAGO")   # 공공데이터포털 (Decoding)
 KEY_FSKR = _get_key("KEY_FSKR")       # 식품안전나라
