@@ -82,6 +82,17 @@ def step_blocklist() -> list[dict]:
     return rows
 
 
+def step_htfs_mfc_all() -> list[dict]:
+    path = DATA_DIR / "htfs_mfc_all.json"
+    if path.exists():
+        print("[3.8] htfs_mfc_all.json 캐시 존재 → 재사용")
+        return json.loads(path.read_text(encoding="utf-8"))
+    print("[3.8] C003 건기식 품목제조신고 전체 다운로드 중 (약 45회 호출, 2~3분)...")
+    rows = htfs_mfc.fetch_all()
+    save(path, rows)
+    return rows
+
+
 def build_biocom_master(htfs_all: list[dict], htfs_nutri_all: list[dict]) -> list[dict]:
     """바이오컴 11종 각각에 대해 여러 API 결과를 한 객체로 합침."""
     print("[4] 바이오컴 11종 통합 데이터 빌드 중...")
@@ -180,6 +191,7 @@ def main() -> None:
     step_htfs_cat_all()
     htfs_nutri_all = step_htfs_nutri_all()
     step_blocklist()
+    step_htfs_mfc_all()
     master = build_biocom_master(htfs_all, htfs_nutri_all)
 
     print("\n요약:")

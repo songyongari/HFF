@@ -20,20 +20,48 @@
 """
 from __future__ import annotations
 
+import json
+import time
 from functools import lru_cache
 
-from config import SID_HTFS_MFC
-from fetchers._fskr_base import call_fskr, extract_rows
+from config import DATA_DIR, SID_HTFS_MFC
+from fetchers._fskr_base import call_fskr, extract_rows, total_count
+
+_CACHE_FILE = DATA_DIR / "htfs_mfc_all.json"
 
 
-@lru_cache(maxsize=512)
+def fetch_all(*, page_size: int = 1000, sleep: float = 0.3) -> list[dict]:
+    """C003 전체 44K+건 수신. 식약처 API max 1000/call → 약 45회 호출."""
+    first = call_fskr(SID_HTFS_MFC, start=1, end=page_size)
+    total = total_count(first, SID_HTFS_MFC)
+    if total == 0:
+        return []
+    all_rows = extract_rows(first, SID_HTFS_MFC)
+    print(f"  C003 total={total:,}, 1-{page_size}: {len(all_rows)} rows")
+    cursor = page_size + 1
+    while cursor <= total:
+        end = min(cursor + page_size - 1, total)
+        payload = call_fskr(SID_HTFS_MFC, start=cursor, end=end)
+        rows = extract_rows(payload, SID_HTFS_MFC)
+        all_rows.extend(rows)
+        print(f"  C003 {cursor:,}-{end:,}: {len(rows)} rows (누적 {len(all_rows):,})")
+        cursor = end + 1
+        time.sleep(sleep)
+    return all_rows
+
+
+@lru_cache(maxsize=1)
+def _load_index() -> dict[str, dict]:
+    """htfs_mfc_all.json 을 PRDLST_REPORT_NO → row dict 로 인덱싱."""
+    if not _CACHE_FILE.exists():
+        return {}
+    rows = json.loads(_CACHE_FILE.read_text(encoding="utf-8"))
+    return {str(r.get("PRDLST_REPORT_NO", "")).strip(): r for r in rows if r.get("PRDLST_REPORT_NO")}
+
+
 def fetch_by_report_no(report_no: str) -> dict | None:
-    """신고번호 정확 매칭. 클라우드 환경 대비 짧은 타임아웃·재시도 없음."""
-    payload = call_fskr(SID_HTFS_MFC, start=1, end=5,
-                        extras={"PRDLST_REPORT_NO": str(report_no).strip()},
-                        timeout=8, retries=0)
-    rows = extract_rows(payload, SID_HTFS_MFC)
-    return rows[0] if rows else None
+    """신고번호 정확 매칭. 로컬 사전수집 JSON에서 즉시 조회 (라이브 호출 없음)."""
+    return _load_index().get(str(report_no).strip())
 
 
 def search_by_product_name(name: str, *, limit: int = 50) -> list[dict]:
