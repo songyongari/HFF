@@ -28,9 +28,10 @@ from fetchers._fskr_base import call_fskr, extract_rows
 
 @lru_cache(maxsize=512)
 def fetch_by_report_no(report_no: str) -> dict | None:
-    """신고번호 정확 매칭."""
+    """신고번호 정확 매칭. 클라우드 환경 대비 짧은 타임아웃·재시도 없음."""
     payload = call_fskr(SID_HTFS_MFC, start=1, end=5,
-                        extras={"PRDLST_REPORT_NO": str(report_no).strip()})
+                        extras={"PRDLST_REPORT_NO": str(report_no).strip()},
+                        timeout=8, retries=0)
     rows = extract_rows(payload, SID_HTFS_MFC)
     return rows[0] if rows else None
 

@@ -18,5 +18,5 @@ def fetch_by_product_name(product_name: str, *, page_size: int = 100) -> list[di
         "pageNo": "1",
         "numOfRows": str(page_size),
         "PDTNM": product_name,
-    })
+    }, timeout=8)
     return extract_items(payload)
