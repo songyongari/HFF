@@ -5,10 +5,13 @@
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 from config import URL_FOODHIST
 from fetchers._dg_base import call_dg, extract_items
 
 
+@lru_cache(maxsize=512)
 def fetch_by_product_name(product_name: str, *, page_size: int = 100) -> list[dict]:
     """제품명으로 원재료 리스트 조회. 제품 1개당 원재료별 row가 여러 개 반환됨."""
     payload = call_dg(URL_FOODHIST, {

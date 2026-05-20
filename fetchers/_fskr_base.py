@@ -16,7 +16,7 @@ from config import FSKR_BASE, KEY_FSKR
 _LOCK = threading.Lock()
 _LAST_CALL: list[float] = [0.0]   # list로 감싸야 closure에서 mutation 가능
 _MIN_INTERVAL = 1.2               # 동일 키 동시차단 회피용 최소 간격(초)
-_DEFAULT_TIMEOUT = 180
+_DEFAULT_TIMEOUT = 15             # 클라우드 환경 — 짧게 잡고 빠르게 실패
 
 
 def _build_url(service_id: str, data_type: str, start: int, end: int,
@@ -41,6 +41,9 @@ def call_fskr(service_id: str, *, start: int = 1, end: int = 5,
                 time.sleep(_MIN_INTERVAL - gap)
             try:
                 r = requests.get(url, headers=headers, timeout=timeout)
+            except requests.RequestException as e:
+                _LAST_CALL[0] = time.time()
+                return {"_error": f"network: {type(e).__name__}"}
             finally:
                 _LAST_CALL[0] = time.time()
 

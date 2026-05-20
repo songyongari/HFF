@@ -20,10 +20,13 @@
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 from config import SID_HTFS_MFC
 from fetchers._fskr_base import call_fskr, extract_rows
 
 
+@lru_cache(maxsize=512)
 def fetch_by_report_no(report_no: str) -> dict | None:
     """신고번호 정확 매칭."""
     payload = call_fskr(SID_HTFS_MFC, start=1, end=5,
