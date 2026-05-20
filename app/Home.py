@@ -131,10 +131,10 @@ if q:
         link1, link2 = st.columns(2)
         with link1:
             st.page_link("pages/4_성분탐색.py",
-                         label="🧪 성분 탐색에서 상세", use_container_width=True)
+                         label="🧪 성분 탐색에서 상세", width="stretch")
         with link2:
             st.page_link("pages/2_시장제품검색.py",
-                         label="🏷️ 시장 제품 검색에서 상세", use_container_width=True)
+                         label="🏷️ 시장 제품 검색에서 상세", width="stretch")
     else:
         st.caption(f"'{q}' — 모든 소스에서 매칭 없음")
 

@@ -84,7 +84,7 @@ else:
         }
         for m in biocom_hits
     ])
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width="stretch", hide_index=True)
 
 section("🏭 시장 TOP 제조사")
 if market_hits:
@@ -92,7 +92,7 @@ if market_hits:
     df_m = pd.DataFrame(top_makers, columns=["제조사", "제품 수"])
     c1, c2 = st.columns([1, 1])
     with c1:
-        st.dataframe(df_m, use_container_width=True, hide_index=True, height=340)
+        st.dataframe(df_m, width="stretch", hide_index=True, height=340)
     with c2:
         st.markdown("**대표 제품 (상위 10)**")
         for it in market_hits[:10]:
@@ -113,7 +113,7 @@ if ingredient_hits:
         }
         for i in ingredient_hits
     ])
-    st.dataframe(df_i, use_container_width=True, hide_index=True)
+    st.dataframe(df_i, width="stretch", hide_index=True)
 else:
     st.caption("해당 태그와 직접 매칭되는 성분 시드가 아직 없습니다. (시드 사전에 태깅 추가 여지)")
 
@@ -135,7 +135,7 @@ dist = pd.DataFrame(
      for t in FUNCTION_TAGS]
 ).sort_values("건수", ascending=False)
 cA, cB = st.columns([1, 2])
-cA.dataframe(dist, use_container_width=True, hide_index=True)
+cA.dataframe(dist, width="stretch", hide_index=True)
 cB.bar_chart(dist.set_index("태그")["건수"])
 
 # ============ 바이오컴+다빈치 × 11 태그 매트릭스 ============
@@ -152,4 +152,4 @@ with st.expander("🗺 바이오컴+다빈치 × 11태그 매트릭스"):
     # 다빈치는 MAIN_FNCTN이 없어서 태그 추정 생략 (제품 이름 기반 태깅은 별도 로직 필요)
     # 현재는 포함하지 않음 — 향후 v0.4에서 내부 매핑 확장 시 구현.
     df_mtx = pd.DataFrame(rows)
-    st.dataframe(df_mtx, use_container_width=True, hide_index=True)
+    st.dataframe(df_mtx, width="stretch", hide_index=True)

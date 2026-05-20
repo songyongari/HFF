@@ -87,7 +87,7 @@ if is_davinci:
             }
             for ing in ingredients
         ])
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.dataframe(df, width="stretch", hide_index=True)
 
     with tabs_dv[1]:
         ratios = [(ing["name"], ing.get("ratio"))
@@ -128,7 +128,7 @@ if is_davinci:
                 "장내": "●" if match and match["tests"].get("microbiome") else "",
                 "Phase": match["phase"]["phase"] if match else "",
             })
-        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
         st.caption("라벨 성분 → 내부 82 시드 자동 매칭. 시드에 없으면 '—'로 표시.")
 
     with tabs_dv[3]:
@@ -184,7 +184,7 @@ if is_davinci:
                         }
                         for h in total_hits
                     ])
-                    st.dataframe(df_alt, use_container_width=True, hide_index=True, height=400)
+                    st.dataframe(df_alt, width="stretch", hide_index=True, height=400)
 
                     from collections import Counter
                     origins = Counter(h.get("cooNm", "") for h in total_hits).most_common(5)
@@ -312,7 +312,7 @@ with tabs[2]:
             }
             for ing in matched_xlsx.get("ingredients", [])
         ])
-        st.dataframe(df_amt, use_container_width=True, hide_index=True)
+        st.dataframe(df_amt, width="stretch", hide_index=True)
         # 배수 차트
         ratios = [(ing["name"], ing.get("ratio"))
                   for ing in matched_xlsx.get("ingredients", [])
@@ -366,7 +366,7 @@ with tabs[3]:
                 }
                 for ing in xlsx_ing
             ])
-            st.dataframe(df_n, use_container_width=True, hide_index=True)
+            st.dataframe(df_n, width="stretch", hide_index=True)
 
             ratios = [(ing["name"], ing.get("ratio"))
                       for ing in xlsx_ing
@@ -413,7 +413,7 @@ with tabs[3]:
 
             if len(nutri_new) > 1:
                 with st.expander(f"다른 등록 레코드 {len(nutri_new)-1}건"):
-                    st.dataframe(pd.DataFrame(nutri_new[1:]), use_container_width=True, hide_index=True)
+                    st.dataframe(pd.DataFrame(nutri_new[1:]), width="stretch", hide_index=True)
 
         elif nutri_old:
             # 기존 API 폴백
@@ -428,7 +428,7 @@ with tabs[3]:
                 if v not in (None, ""):
                     rows.append({"영양소": label, "값 (100g당)": str(v)})
             if rows:
-                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
             st.caption(f"최근 업데이트: {n.get('UPDATE_DATE', '—')}")
         else:
             st.warning("공공 영양성분 DB 두 곳 모두에 미등재 (최근 등록 제품은 DB 갱신 지연).")
@@ -447,7 +447,7 @@ with tabs[3]:
                 }
                 for ing in matched_xlsx.get("ingredients", [])
             ])
-            st.dataframe(df_n, use_container_width=True, hide_index=True)
+            st.dataframe(df_n, width="stretch", hide_index=True)
 
 
 # ============ 탭 5: 안전성 ============

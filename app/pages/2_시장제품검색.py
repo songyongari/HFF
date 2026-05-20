@@ -98,7 +98,7 @@ with main_tabs[0]:
                 }
                 for it in results
             ])
-            edited = st.data_editor(df, use_container_width=True, hide_index=True,
+            edited = st.data_editor(df, width="stretch", hide_index=True,
                                     height=400, disabled=["제품명", "제조사", "신고번호", "등록일", "기능성 요약"])
 
             # 선택된 행의 인덱스 찾기
@@ -214,7 +214,7 @@ with main_tabs[1]:
                 }
                 for r in rows
             ])
-            edited = st.data_editor(df, use_container_width=True, hide_index=True,
+            edited = st.data_editor(df, width="stretch", hide_index=True,
                                     height=400,
                                     disabled=["품목명", "업소", "품목유형", "보고번호", "보고일자"])
             picked_idx = [i for i, row in edited.iterrows() if row["선택"]]
@@ -330,7 +330,7 @@ with main_tabs[2]:
                 }
                 for r in results
             ])
-            edited = st.data_editor(df, use_container_width=True, hide_index=True, height=400,
+            edited = st.data_editor(df, width="stretch", hide_index=True, height=400,
                                     disabled=[c for c in df.columns if c != "선택"])
             picked_idx = [i for i, row in edited.iterrows() if row["선택"]]
             if not picked_idx:

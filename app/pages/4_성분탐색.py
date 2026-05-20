@@ -237,7 +237,7 @@ with tabs[1]:
             }
             for r in rwmatr_hits
         ])
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+        st.dataframe(df, width="stretch", hide_index=True, height=400)
 
 # ---------- 탭 3: 건기식 제품 ----------
 with tabs[2]:
@@ -256,7 +256,7 @@ with tabs[2]:
             }
             for it in htfs_hits
         ])
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+        st.dataframe(df, width="stretch", hide_index=True, height=400)
 
         # 제조사 Top
         from collections import Counter
@@ -284,7 +284,7 @@ with tabs[3]:
             }
             for r in c002_hits
         ])
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+        st.dataframe(df, width="stretch", hide_index=True, height=400)
         from collections import Counter
         cats = Counter(str(r.get("PRDLST_DCNM", "")) for r in c002_hits).most_common(10)
         with st.expander(f"품목유형 Top 10"):
@@ -309,7 +309,7 @@ with tabs[4]:
             }
             for r in imp_hits
         ])
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+        st.dataframe(df, width="stretch", hide_index=True, height=400)
         from collections import Counter
         origins = Counter(str(r.get("cooNm", "")) for r in imp_hits).most_common(5)
         with st.expander("원산지 Top 5"):

@@ -39,7 +39,7 @@ def material_table(raw_list: Iterable[str], *, title: str | None = None,
         row["분류"] = e.get("MLSFC_NM") if e else ""
         row["부위"] = (e.get("REGN_CD_NM") or "") if e else ""
         rows.append(row)
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
 
 def foodhist_origin_table(rows: list[dict], *, title: str | None = None) -> None:
@@ -54,7 +54,7 @@ def foodhist_origin_table(rows: list[dict], *, title: str | None = None) -> None
          "GMO": r.get("GMONM") or "—"}
         for r in rows
     ])
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width="stretch", hide_index=True)
 
 
 # ================================================================
