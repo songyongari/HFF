@@ -9,6 +9,7 @@ I0760 의 585건 원료를 4 카테고리(영양소·복합혼합·기능성원�
 """
 from __future__ import annotations
 
+import re
 from collections import Counter
 
 import pandas as pd
@@ -22,6 +23,23 @@ from lib import (
     search_rwmatr,
 )
 from theme import info_pill, page, section
+
+# 효능 종결어미 + 구두점(.,·/) 으로 결합된 다중 효능 분리
+_TERM_PUNCT = re.compile(r'(필요|있음|줌|함|향상)\s*[,.·/]\s*')
+
+
+def split_combined_benefits(text: str) -> list[str]:
+    """'A에 필요, B에 필요' 형태를 ['A에 필요', 'B에 필요'] 로 분리."""
+    results = []
+    last = 0
+    for m in _TERM_PUNCT.finditer(text):
+        results.append(text[last:m.start() + len(m.group(1))])
+        last = m.end()
+    if last < len(text):
+        results.append(text[last:])
+    if not results:
+        results = [text]
+    return [r.strip(" .,·/").strip() for r in results if r.strip()]
 
 page(
     "기능성원료 가이드",
@@ -80,10 +98,11 @@ def render_detail(name: str, source_row: dict) -> None:
             ing = sec.get("ingredient") or ""
             if nq and nq in norm(ing):
                 for b in sec.get("benefits", []):
-                    benefit_counter[b] += 1
+                    # 콤마·마침표·슬래시로 결합된 다중 효능 분리해서 집계
+                    for part in split_combined_benefits(b):
+                        benefit_counter[part] += 1
 
     if benefit_counter:
-        # 상위 5개, 빈도 표시
         for benefit, n in benefit_counter.most_common(5):
             st.markdown(f"- {benefit}  <span style='color:#888; font-size:0.85em;'>"
                         f"({n}개 제품에서 표기)</span>",
@@ -91,8 +110,12 @@ def render_detail(name: str, source_row: dict) -> None:
     else:
         st.caption("관련 효능 문구 자동 추출 실패 — 아래 사용 제품의 기능성 문구 참고.")
 
-    # ===== 2. 원재료 표준사전 매칭 =====
-    rw_hits = search_rwmatr(name, limit=3)
+    # ===== 2. 원재료 표준사전 매칭 (정확 매칭만 — 부분 매칭으로 무관한 식물 끌어오는 것 방지) =====
+    rw_raw = search_rwmatr(name, limit=10)
+    rw_hits = [r for r in rw_raw
+               if norm(name) == norm(r.get("RPRSNT_RAWMTRL_NM", ""))
+               or norm(name) == norm(r.get("RAWMTRL_NCKNM", ""))
+               or norm(name) == norm(r.get("ENG_NM", ""))]
     if rw_hits:
         st.markdown("##### 🌱 원재료 표준사전 매칭")
         for rh in rw_hits:
