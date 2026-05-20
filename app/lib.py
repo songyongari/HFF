@@ -357,9 +357,13 @@ _KO_MARKER = _re.compile(r'\(국문\)\s*')
 _EN_MARKER = _re.compile(r'\(영문\)\s*')
 
 
-def _bullet_split(text: str, *, allow_comma: bool = False) -> list[str]:
-    """단일 텍스트 블록을 불릿 리스트로. 우선순위: ①②③ > (가) > \\n > ', '
+_NUMBERED = _re.compile(rf'\((?:\d+|[{_KR_LETTER}])\)')
 
+
+def _bullet_split(text: str, *, allow_comma: bool = False) -> list[str]:
+    """단일 텍스트 블록을 불릿 리스트로.
+
+    우선순위: ①②③ > (1)(가)(나)... > \\n > ', '
     allow_comma=True: `, ` 분리 활성화 ((국문)/(영문) 마커 안에서만 안전).
     """
     text = text.strip().strip(",").strip()
@@ -368,8 +372,8 @@ def _bullet_split(text: str, *, allow_comma: bool = False) -> list[str]:
     if _re.search(rf'[{_CIRCLED}]', text):
         parts = _re.split(rf'[{_CIRCLED}]', text)
         return [p.strip().rstrip(":·,.") for p in parts if p.strip()]
-    if _re.search(rf'\([{_KR_LETTER}]\)', text):
-        parts = _re.split(rf'\([{_KR_LETTER}]\)', text)
+    if _NUMBERED.search(text):
+        parts = _NUMBERED.split(text)
         return [p.strip().rstrip(":·,.") for p in parts if p.strip()]
     if "\n" in text:
         return [line.strip() for line in text.split("\n") if line.strip()]
@@ -466,7 +470,9 @@ def render_functionality(text: str, *, st_mod=None) -> None:
             st_mod.markdown(f"**🔹 {sec['ingredient']}**  {badge}",
                             unsafe_allow_html=True)
         for b in sec["benefits"]:
-            st_mod.markdown(f"- {b}")
+            # ~ 는 markdown 취소선(~~text~~) 문법 — 범위 표기(4.0~30g) 보존 위해 escape
+            safe = b.replace("~", r"\~")
+            st_mod.markdown(f"- {safe}")
         st_mod.write("")
 
 
