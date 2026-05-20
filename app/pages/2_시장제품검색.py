@@ -30,10 +30,8 @@ from renderers import (
 from fetchers.htfs_nutri import FIELD_LABELS as NUTRI_LABELS
 
 from fetchers.foodhist import fetch_by_product_name as foodhist_by_name
-from fetchers.htfs_mfc import (
-    fetch_by_report_no as htfs_mfc_by_rpt,
-    parse_raw_materials as htfs_mfc_parse,
-)
+from fetchers.htfs_mfc_lookup import fetch_by_report_no as htfs_mfc_by_rpt
+from fetchers.htfs_mfc import parse_raw_materials as htfs_mfc_parse
 from fetchers.mfc_rpt import (
     fetch_by_report_no as mfc_by_report_no,
     parse_raw_materials,
@@ -135,7 +133,7 @@ with main_tabs[0]:
                         st.markdown("**태그**: " + "  ·  ".join(f"`#{t}`" for t in tags))
 
                 with sub_tabs[1]:
-                    st.caption("🔧 v2 — C003 로컬 인덱스 조회 (라이브 호출 없음)")
+                    st.caption("🔧 v3 — htfs_mfc_lookup 모듈로 분리 (캐시 우회)")
                     # 1차: C003 품목제조신고
                     sttemnt = str(item.get("STTEMNT_NO", "")).strip()
                     mfc = htfs_mfc_by_rpt(sttemnt) if sttemnt else None
