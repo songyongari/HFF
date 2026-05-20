@@ -357,19 +357,36 @@ _KO_MARKER = _re.compile(r'\(국문\)\s*')
 _EN_MARKER = _re.compile(r'\(영문\)\s*')
 
 
-def _split_section_body(body: str) -> tuple[list[str], str | None]:
-    """섹션 본문을 (한글 불릿 리스트, 영문 한 줄 또는 None) 으로 분리.
+def _bullet_split(text: str, *, allow_comma: bool = False) -> list[str]:
+    """단일 텍스트 블록을 불릿 리스트로. 우선순위: ①②③ > (가) > \\n > ', '
 
-    우선순위:
-      1. (국문) / (영문) 명시적 마커 — 한국어는 `, ` 로 불릿 분리, 영문은 한 줄
-      2. ①②③ 원번호 분리
-      3. (가)(나)(다) 한글번호 분리
-      4. 줄바꿈 분리
-      5. 그 외 — 단일 불릿 (콤마는 합성어 내부일 수 있어 분리 안 함)
+    allow_comma=True: `, ` 분리 활성화 ((국문)/(영문) 마커 안에서만 안전).
+    """
+    text = text.strip().strip(",").strip()
+    if not text:
+        return []
+    if _re.search(rf'[{_CIRCLED}]', text):
+        parts = _re.split(rf'[{_CIRCLED}]', text)
+        return [p.strip().rstrip(":·,.") for p in parts if p.strip()]
+    if _re.search(rf'\([{_KR_LETTER}]\)', text):
+        parts = _re.split(rf'\([{_KR_LETTER}]\)', text)
+        return [p.strip().rstrip(":·,.") for p in parts if p.strip()]
+    if "\n" in text:
+        return [line.strip() for line in text.split("\n") if line.strip()]
+    if allow_comma and ", " in text:
+        return [s.strip() for s in text.split(", ") if s.strip()]
+    return [text]
+
+
+def _split_section_body(body: str) -> tuple[list[str], list[str]]:
+    """섹션 본문을 (한글 불릿, 영문 불릿) 으로 분리.
+
+    (국문)/(영문) 마커가 있으면 명시적 분리 — 마커 내부는 `, ` 분리도 허용.
+    없으면 본문 전체를 한국어로 간주, 합성 문장은 그대로 보존.
     """
     body = body.strip()
     if not body:
-        return [], None
+        return [], []
 
     ko_m = _KO_MARKER.search(body)
     en_m = _EN_MARKER.search(body)
@@ -377,28 +394,14 @@ def _split_section_body(body: str) -> tuple[list[str], str | None]:
     if ko_m or en_m:
         if ko_m and en_m:
             ko_text = body[ko_m.end():en_m.start()]
-            en_text = body[en_m.end():].strip()
+            en_text = body[en_m.end():]
         elif ko_m:
-            ko_text, en_text = body[ko_m.end():], None
+            ko_text, en_text = body[ko_m.end():], ""
         else:
-            ko_text, en_text = "", body[en_m.end():].strip()
+            ko_text, en_text = "", body[en_m.end():]
+        return _bullet_split(ko_text, allow_comma=True), _bullet_split(en_text, allow_comma=True)
 
-        ko_text = ko_text.strip().strip(",").strip()
-        ko_bullets = [s.strip() for s in ko_text.split(", ") if s.strip()] if ko_text else []
-        return ko_bullets, en_text
-
-    if _re.search(rf'[{_CIRCLED}]', body):
-        parts = [p.strip().rstrip(":·,.") for p in _re.split(rf'[{_CIRCLED}]', body)]
-        return [p for p in parts if p], None
-
-    if _re.search(rf'\([{_KR_LETTER}]\)', body):
-        parts = [p.strip().rstrip(":·,.") for p in _re.split(rf'\([{_KR_LETTER}]\)', body)]
-        return [p for p in parts if p], None
-
-    if "\n" in body:
-        return [line.strip() for line in body.split("\n") if line.strip()], None
-
-    return [body], None
+    return _bullet_split(body), []
 
 
 def parse_functionality(text: str) -> list[dict]:
@@ -421,9 +424,9 @@ def parse_functionality(text: str) -> list[dict]:
             m = _RECOGNITION_NO.search(ing)
             if m:
                 rno = m.group(0)
-        bullets, english = _split_section_body(body)
+        ko_bullets, en_bullets = _split_section_body(body)
         return {"ingredient": ing, "recognition_no": rno,
-                "benefits": bullets, "english": english}
+                "benefits": ko_bullets, "english": en_bullets}
 
     if not matches:
         return [_make(None, text)]
@@ -462,10 +465,19 @@ def render_functionality(text: str, *, st_mod=None) -> None:
                 badge = info_pill("고시형", tone="info")
             st_mod.markdown(f"**🔹 {sec['ingredient']}**  {badge}",
                             unsafe_allow_html=True)
-        for b in sec["benefits"]:
-            st_mod.markdown(f"- {b}")
-        if sec.get("english"):
-            st_mod.caption(f"🇬🇧 {sec['english']}")
+        ko = sec["benefits"]
+        en = sec.get("english") or []
+        # 1:1 매핑 가능하면 영문을 각 한국어 불릿 밑에 caption 으로
+        if en and len(en) == len(ko):
+            for k, e in zip(ko, en):
+                st_mod.markdown(f"- {k}")
+                st_mod.caption(f"&nbsp;&nbsp;&nbsp;&nbsp;🇬🇧 {e}",
+                               unsafe_allow_html=True)
+        else:
+            for b in ko:
+                st_mod.markdown(f"- {b}")
+            if en:
+                st_mod.caption("🇬🇧  \n" + "  \n".join(f"• {e}" for e in en))
         st_mod.write("")
 
 
