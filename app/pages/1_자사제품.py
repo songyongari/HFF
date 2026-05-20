@@ -81,7 +81,7 @@ if is_davinci:
                 "성분": ing["name"],
                 "함량": ing.get("amount"),
                 "단위": ing.get("unit"),
-                "식약처 기준": ing.get("kfda_std") or "—",
+                "식약처 기준": str(ing["kfda_std"]) if ing.get("kfda_std") is not None else "—",
                 "배수": (f"{ing.get('ratio'):.2f}"
                          if isinstance(ing.get("ratio"), (int, float)) else "—"),
             }
@@ -306,9 +306,9 @@ with tabs[2]:
                 "성분": ing["name"],
                 "함량": ing.get("amount"),
                 "단위": ing.get("unit"),
-                "식약처 기준": ing.get("kfda_std"),
+                "식약처 기준": str(ing["kfda_std"]) if ing.get("kfda_std") is not None else "—",
                 "배수": (f"{ing.get('ratio'):.2f}"
-                         if isinstance(ing.get("ratio"), (int, float)) else ing.get("ratio")),
+                         if isinstance(ing.get("ratio"), (int, float)) else str(ing.get("ratio") or "—")),
             }
             for ing in matched_xlsx.get("ingredients", [])
         ])
@@ -360,7 +360,7 @@ with tabs[3]:
                     "성분": ing["name"],
                     "함량": ing.get("amount"),
                     "단위": ing.get("unit"),
-                    "식약처 기준": ing.get("kfda_std") or "—",
+                    "식약처 기준": str(ing["kfda_std"]) if ing.get("kfda_std") is not None else "—",
                     "배수": (f"{ing.get('ratio'):.2f}"
                              if isinstance(ing.get("ratio"), (int, float)) else "—"),
                 }
@@ -441,7 +441,7 @@ with tabs[3]:
                     "성분": ing["name"],
                     "함량": ing.get("amount"),
                     "단위": ing.get("unit"),
-                    "식약처 기준": ing.get("kfda_std") or "—",
+                    "식약처 기준": str(ing["kfda_std"]) if ing.get("kfda_std") is not None else "—",
                     "배수": (f"{ing.get('ratio'):.2f}"
                              if isinstance(ing.get("ratio"), (int, float)) else "—"),
                 }
