@@ -133,7 +133,6 @@ with main_tabs[0]:
                         st.markdown("**태그**: " + "  ·  ".join(f"`#{t}`" for t in tags))
 
                 with sub_tabs[1]:
-                    st.caption("🔧 v3 — htfs_mfc_lookup 모듈로 분리 (캐시 우회)")
                     # 1차: C003 품목제조신고
                     sttemnt = str(item.get("STTEMNT_NO", "")).strip()
                     mfc = htfs_mfc_by_rpt(sttemnt) if sttemnt else None
