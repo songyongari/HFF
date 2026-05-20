@@ -135,12 +135,10 @@ with main_tabs[0]:
                         st.markdown("**태그**: " + "  ·  ".join(f"`#{t}`" for t in tags))
 
                 with sub_tabs[1]:
+                    st.caption("🔧 v2 — C003 로컬 인덱스 조회 (라이브 호출 없음)")
                     # 1차: C003 품목제조신고
                     sttemnt = str(item.get("STTEMNT_NO", "")).strip()
-                    mfc = None
-                    if sttemnt:
-                        with st.spinner("C003 조회..."):
-                            mfc = htfs_mfc_by_rpt(sttemnt)
+                    mfc = htfs_mfc_by_rpt(sttemnt) if sttemnt else None
                     if mfc and mfc.get("RAWMTRL_NM"):
                         raws = htfs_mfc_parse(mfc["RAWMTRL_NM"])
                         material_table(raws, title=f"📋 원재료 · 총 {len(raws)}종 (C003 품목제조신고)")
