@@ -459,23 +459,24 @@ def parse_functionality(text: str) -> list[dict]:
     return sections
 
 
+_LEADING_MARKER = _re.compile(
+    rf'^(?:[{_CIRCLED}]|\(\d+\)|\([{_KR_LETTER}]\)|\d+\.)'
+)
+# 효능 종결어미·키워드 — 첫 줄에 이게 있으면 원료명 아니라 효능 문장
+_EFFICACY = _re.compile(r'있음|필요|도움|개선|감소|유지|보호|증진|기여|도와|향상')
+
+
 def _parse_blank_line_blocks(text: str, _make) -> list[dict]:
-    """대괄호 없는 본문을 빈 줄 기준으로 분리, 각 블록 첫 줄을 원료명으로 가정.
+    """대괄호 없는 본문을 빈 줄 기준으로 분리, 각 블록 첫 줄을 원료명으로 후보 승격.
 
-    JULIE'S CHOICE 같은 식약처 변종 데이터 형식:
-      석류농축분말(제2018-8호)
-      (국문)
-      1. 피부 보습에 도움을 줄 수 있음
-      ...
-
-      비타민C
-      (1) 결합조직 형성과 기능유지에 필요
-      ...
+    승격 조건:
+      - 본문이 뒤따라 있음
+      - 첫 줄이 번호 마커(①, (1), (가), 1.)로 시작 안 함
+      - 첫 줄에 효능 키워드(있음·필요·도움·개선 등) 없음
+      - 첫 줄 길이 50자 이하
+    위 조건 다 만족할 때만 원료명으로 승격, 아니면 전체를 본문 처리(원료명 없음).
     """
     sections: list[dict] = []
-    leading_marker = _re.compile(
-        rf'^(?:[{_CIRCLED}]|\(\d+\)|\([{_KR_LETTER}]\)|\d+\.)'
-    )
     for block in _re.split(r'\n\s*\n', text):
         block = block.strip()
         if not block:
@@ -483,8 +484,13 @@ def _parse_blank_line_blocks(text: str, _make) -> list[dict]:
         lines = block.split("\n")
         first = lines[0].strip()
         rest = "\n".join(lines[1:]).strip()
-        # 첫 줄이 번호 마커로 시작 안 하고, 그 뒤에 본문이 있으면 → 헤더로 승격
-        if rest and first and not leading_marker.match(first):
+        is_header = (
+            bool(rest) and bool(first)
+            and not _LEADING_MARKER.match(first)
+            and not _EFFICACY.search(first)
+            and len(first) <= 50
+        )
+        if is_header:
             sections.append(_make(first, rest))
         else:
             sections.append(_make(None, block))
