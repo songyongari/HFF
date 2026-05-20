@@ -64,12 +64,20 @@ if not query:
     # ============ 기능성 원료 카탈로그 (I0760) ============
     section("📚 기능성 원료 카탈로그", caption="식약처 I0760 분류 · 행 클릭 시 자동 검색")
     catalog = load_htfs_cat_all()
-    nutri_rows = [r for r in catalog if r.get("MLSFC_NM") == "영양소"]
+    # 영양소(MLSFC_NM)를 SCLAS_NM 기준으로 단일/복합 분리
+    _MIXED_SCLAS = {"혼합기능성원료", "복합영양소제품", "영양보충용제품"}
+    nutri_rows = [r for r in catalog
+                  if r.get("MLSFC_NM") == "영양소"
+                  and r.get("SCLAS_NM") not in _MIXED_SCLAS]
+    mixed_rows = [r for r in catalog
+                  if r.get("MLSFC_NM") == "영양소"
+                  and r.get("SCLAS_NM") in _MIXED_SCLAS]
     func_rows  = [r for r in catalog if r.get("MLSFC_NM") == "기능성원료"]
     indiv_rows = [r for r in catalog if r.get("MLSFC_NM") == "개별인정형 건강기능식품"]
 
     cat_tabs = st.tabs([
         f"🥗 고시형 · 영양소 ({len(nutri_rows)})",
+        f"🥣 고시형 · 복합/혼합 ({len(mixed_rows)})",
         f"🌿 고시형 · 기능성원료 ({len(func_rows)})",
         f"🟢 개별인정형 ({len(indiv_rows)})",
     ])
@@ -100,8 +108,9 @@ if not query:
             st.rerun()
 
     with cat_tabs[0]: _render_catalog(nutri_rows, "cat_nutri")
-    with cat_tabs[1]: _render_catalog(func_rows, "cat_func")
-    with cat_tabs[2]: _render_catalog(indiv_rows, "cat_indiv")
+    with cat_tabs[1]: _render_catalog(mixed_rows, "cat_mixed")
+    with cat_tabs[2]: _render_catalog(func_rows, "cat_func")
+    with cat_tabs[3]: _render_catalog(indiv_rows, "cat_indiv")
     st.stop()
 
 # ============ 최우선: 5-bucket 종합 판정 ============
