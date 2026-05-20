@@ -432,6 +432,8 @@ def parse_functionality(text: str) -> list[dict]:
             m = _RECOGNITION_NO.search(ing)
             if m:
                 rno = m.group(0)
+                # 원료명에서 "(제YYYY-NN호)" 제거 — 뱃지에만 표시
+                ing = _re.sub(r'\s*\(\s*제\d{4}-\d+호\s*\)', '', ing).strip()
         ko_bullets, en_bullets = _split_section_body(body)
         return {"ingredient": ing, "recognition_no": rno,
                 "benefits": ko_bullets, "english": en_bullets}
