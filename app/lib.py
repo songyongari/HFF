@@ -465,19 +465,8 @@ def render_functionality(text: str, *, st_mod=None) -> None:
                 badge = info_pill("고시형", tone="info")
             st_mod.markdown(f"**🔹 {sec['ingredient']}**  {badge}",
                             unsafe_allow_html=True)
-        ko = sec["benefits"]
-        en = sec.get("english") or []
-        # 1:1 매핑 가능하면 영문을 각 한국어 불릿 밑에 caption 으로
-        if en and len(en) == len(ko):
-            for k, e in zip(ko, en):
-                st_mod.markdown(f"- {k}")
-                st_mod.caption(f"&nbsp;&nbsp;&nbsp;&nbsp;🇬🇧 {e}",
-                               unsafe_allow_html=True)
-        else:
-            for b in ko:
-                st_mod.markdown(f"- {b}")
-            if en:
-                st_mod.caption("🇬🇧  \n" + "  \n".join(f"• {e}" for e in en))
+        for b in sec["benefits"]:
+            st_mod.markdown(f"- {b}")
         st_mod.write("")
 
 
