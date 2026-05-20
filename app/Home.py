@@ -100,29 +100,35 @@ if q:
     p3.metric("건기식 제품명", f"{len(prod_mkt_hits):,}")
     p4.metric("수입 건기식 제품", len(prod_imp_hits))
 
-    prod_previews = []
     for m in biocom_hits[:3]:
-        prod_previews.append(
+        st.markdown(
             f"- 🏷 **{m['brand']}** "
-            f"<span style='color:{COLOR['muted']};'>· 바이오컴 · {m.get('category','')}</span>"
+            f"<span style='color:{COLOR['muted']};'>· 바이오컴 · {m.get('category','')}</span>",
+            unsafe_allow_html=True,
         )
     for p in davinci_hits[:3]:
-        prod_previews.append(
+        st.markdown(
             f"- 🇺🇸 **{p['product']}** "
-            f"<span style='color:{COLOR['muted']};'>· 다빈치랩</span>"
+            f"<span style='color:{COLOR['muted']};'>· 다빈치랩</span>",
+            unsafe_allow_html=True,
         )
+    # 시장 건기식 — 클릭하면 시장 제품 검색으로 자동 이동·상세 표시
     for h in prod_mkt_hits[:4]:
-        prod_previews.append(
-            f"- 🟢 **{str(h.get('PRDUCT','')).strip()}** "
-            f"<span style='color:{COLOR['muted']};'>· {h.get('ENTRPS','')}</span>"
-        )
+        prd = str(h.get("PRDUCT", "")).strip()
+        ent = h.get("ENTRPS", "")
+        stmt = str(h.get("STTEMNT_NO", "")).strip()
+        if st.button(f"🟢  {prd}  ·  {ent}",
+                     key=f"goto_mkt_{stmt}",
+                     width="stretch"):
+            st.session_state["mkt_prefill_q"] = prd
+            st.session_state["mkt_prefill_stmt"] = stmt
+            st.switch_page("pages/2_시장제품검색.py")
     for h in prod_imp_hits[:3]:
-        prod_previews.append(
+        st.markdown(
             f"- 🇺🇸 **{h.get('foodNm','')}** "
-            f"<span style='color:{COLOR['muted']};'>· {h.get('mfrNm','')[:30]}</span>"
+            f"<span style='color:{COLOR['muted']};'>· {h.get('mfrNm','')[:30]}</span>",
+            unsafe_allow_html=True,
         )
-    for line in prod_previews[:8]:
-        st.markdown(line, unsafe_allow_html=True)
 
     # ---- 상세 페이지 링크 ----
     total_ing = len(seed_hits) + len(rw_hits) + len(ingr_mkt_hits) + len(ingr_imp_hits)

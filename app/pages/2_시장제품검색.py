@@ -63,6 +63,15 @@ main_tabs = st.tabs([
 # 탭 1: 건기식
 # ==============================================================
 with main_tabs[0]:
+    # Home 빠른 검색에서 넘어온 prefill 적용 (한번 소비)
+    _prefill_q = st.session_state.pop("mkt_prefill_q", None)
+    _prefill_stmt = st.session_state.pop("mkt_prefill_stmt", None)
+    if _prefill_q:
+        st.session_state["htfs_q"] = _prefill_q
+        st.session_state["htfs_mode"] = "제품명"
+    if _prefill_stmt:
+        st.session_state["_auto_select_stmt"] = _prefill_stmt
+
     st.markdown("##### 건강기능식품 DB")
     col1, col2 = st.columns([3, 2])
     with col1:
@@ -84,10 +93,13 @@ with main_tabs[0]:
         st.caption(f"매칭 **{len(results)}건** (상위 300 표시)")
 
         if results:
+            # Home 에서 넘어온 자동선택 신고번호 (있으면 1회)
+            _auto_stmt = st.session_state.pop("_auto_select_stmt", None)
             # 테이블 요약
             df = pd.DataFrame([
                 {
-                    "선택": False,
+                    "선택": (_auto_stmt is not None
+                             and str(it.get("STTEMNT_NO", "")).strip() == _auto_stmt),
                     "제품명": str(it.get("PRDUCT", "")).strip(),
                     "제조사": it.get("ENTRPS", ""),
                     "신고번호": it.get("STTEMNT_NO", ""),
