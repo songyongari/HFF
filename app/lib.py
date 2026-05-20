@@ -358,12 +358,15 @@ _EN_MARKER = _re.compile(r'\(영문\)\s*')
 
 
 _NUMBERED = _re.compile(rf'\((?:\d+|[{_KR_LETTER}])\)')
+_LINE_LEADING_MARKER = _re.compile(
+    rf'^\s*(?:\d+\.\s*|\(\d+\)\s*|\([{_KR_LETTER}]\)\s*|[{_CIRCLED}]\s*)'
+)
 
 
 def _bullet_split(text: str, *, allow_comma: bool = False) -> list[str]:
     """단일 텍스트 블록을 불릿 리스트로.
 
-    우선순위: ①②③ > (1)(가)(나)... > \\n > ', '
+    우선순위: ①②③ > (1)(가)(나)... > \\n (+ 줄 시작 번호 마커 제거) > ', '
     allow_comma=True: `, ` 분리 활성화 ((국문)/(영문) 마커 안에서만 안전).
     """
     text = text.strip().strip(",").strip()
@@ -376,7 +379,8 @@ def _bullet_split(text: str, *, allow_comma: bool = False) -> list[str]:
         parts = _NUMBERED.split(text)
         return [p.strip().rstrip(":·,.") for p in parts if p.strip()]
     if "\n" in text:
-        return [line.strip() for line in text.split("\n") if line.strip()]
+        parts = [line.strip() for line in text.split("\n") if line.strip()]
+        return [_LINE_LEADING_MARKER.sub("", p, count=1) for p in parts]
     if allow_comma and ", " in text:
         return [s.strip() for s in text.split(", ") if s.strip()]
     return [text]
@@ -433,7 +437,8 @@ def parse_functionality(text: str) -> list[dict]:
                 "benefits": ko_bullets, "english": en_bullets}
 
     if not matches:
-        return [_make(None, text)]
+        # [원료명] 대괄호 없음 → 빈 줄 기준 섹션, 각 섹션 첫 줄을 원료명 후보로
+        return _parse_blank_line_blocks(text, _make) or [_make(None, text)]
 
     # 첫 [ 앞에 prefix 텍스트가 있으면 no-ingredient 섹션으로
     first_start = matches[0].start()
@@ -449,6 +454,38 @@ def parse_functionality(text: str) -> list[dict]:
         body = text[body_start:body_end].strip()
         sections.append(_make(ing, body))
 
+    return sections
+
+
+def _parse_blank_line_blocks(text: str, _make) -> list[dict]:
+    """대괄호 없는 본문을 빈 줄 기준으로 분리, 각 블록 첫 줄을 원료명으로 가정.
+
+    JULIE'S CHOICE 같은 식약처 변종 데이터 형식:
+      석류농축분말(제2018-8호)
+      (국문)
+      1. 피부 보습에 도움을 줄 수 있음
+      ...
+
+      비타민C
+      (1) 결합조직 형성과 기능유지에 필요
+      ...
+    """
+    sections: list[dict] = []
+    leading_marker = _re.compile(
+        rf'^(?:[{_CIRCLED}]|\(\d+\)|\([{_KR_LETTER}]\)|\d+\.)'
+    )
+    for block in _re.split(r'\n\s*\n', text):
+        block = block.strip()
+        if not block:
+            continue
+        lines = block.split("\n")
+        first = lines[0].strip()
+        rest = "\n".join(lines[1:]).strip()
+        # 첫 줄이 번호 마커로 시작 안 하고, 그 뒤에 본문이 있으면 → 헤더로 승격
+        if rest and first and not leading_marker.match(first):
+            sections.append(_make(first, rest))
+        else:
+            sections.append(_make(None, block))
     return sections
 
 
